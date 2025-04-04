@@ -1,4 +1,4 @@
-# WebDab Protocol
+# WebDAV Protocol
 
 ## PROPFIND
 The PROPFIND method in WebDAV is used to retrieve properties (like file metadata) of a resource or collection.
