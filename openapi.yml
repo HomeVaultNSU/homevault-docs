@@ -1,22 +1,22 @@
 openapi: 3.0.0
 info:
-  title: File Storage API
-  description: API для работы с файловым хранилищем
+  title: Homevault API
+  description: API 
   version: 1.0.0
 
 servers:
-  - url: https://api.example.com/v1
-    description: Production server
+  - url: https://localhost:8080
+    description: Development server
 
 paths:
   /list:
     get:
-      summary: Получить список файлов и директорий
-      description: Возвращает содержимое указанной директории с возможностью фильтрации по глубине вложенности.
+      summary: Get list of files and directories
+      description: Returns the contents of the specified directory with the ability to filter by nesting depth.
       parameters:
         - name: path
           in: query
-          description: Путь к директории (по умолчанию корень "/")
+          description: Path to directory (default root "/")
           required: false
           schema:
             type: string
