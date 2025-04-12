@@ -1,0 +1,93 @@
+openapi: 3.0.0
+info:
+  title: File Storage API
+  description: API для работы с файловым хранилищем
+  version: 1.0.0
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+
+paths:
+  /list:
+    get:
+      summary: Получить список файлов и директорий
+      description: Возвращает содержимое указанной директории с возможностью фильтрации по глубине вложенности.
+      parameters:
+        - name: path
+          in: query
+          description: Путь к директории (по умолчанию корень "/")
+          required: false
+          schema:
+            type: string
+            default: "/"
+        - name: depth
+          in: query
+          description: Nesting depth (0 - only current directory, 1 - including subdirectories, etc.)
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 0
+            maximum: 5
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectoryListing"
+        '404':
+          description: Directory not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '400':
+          description: Bad request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    FileItem:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "file.txt"
+        type:
+          type: string
+          enum: ["F", "D"]
+          example: "F"
+        size:
+          type: integer
+          description: Size in bytes (Files only)
+          example: 1024
+          nullable: true
+        modified_at:
+          type: string
+          format: date-time
+          description: Last modified date
+          example: "2024-05-20T12:00:00Z"
+      required: [name, type, modified_at]
+
+    DirectoryListing:
+      type: object
+      properties:
+        path:
+          type: string
+          example: "/docs"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileItem"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
