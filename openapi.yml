@@ -83,6 +83,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FileItem"
+        subdirectories:
+          type: array
+          items:
+            $ref: "#components/schemas/DirectoryListing"
 
     ErrorResponse:
       type: object
