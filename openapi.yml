@@ -103,6 +103,12 @@ paths:
               schema:
                 type: string
                 format: binary
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         '400':
           description: Bad request parameters
           content:
@@ -134,9 +140,7 @@ components:
         path:
           type: string
           example: "/my_folder/file.txt"
-      required:
-        - message
-        - path
+      required: [message, path]
 
     FileItem:
       type: object
@@ -180,4 +184,7 @@ components:
       properties:
         error:
           type: string
-      required: [error]
+        timestamp:
+          type: string
+          example: 2025‑01‑25 17:45:30
+      required: [error, timestamp]
