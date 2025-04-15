@@ -81,8 +81,39 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /download:
+    get:
+      tags:
+        - Files
+      summary: Download a file
+      description: Downloads a file from the server
+      parameters:
+        - name: path
+          in: query
+          description: Path to the file to download
+          required: true
+          schema:
+            type: string
+            example: "/docs/report.pdf"
+      responses:
+        '200':
+          description: File content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+
 components:
   schemas:
+
     UploadRequest:
       type: object
       properties:
@@ -100,12 +131,9 @@ components:
     UploadResponse:
       type: object
       properties:
-        message:
-          type: string
-          example: "File uploaded successfully"
         path:
           type: string
-          example: "/uploads/file.txt"
+          example: "/my_folder/file.txt"
       required:
         - message
         - path
