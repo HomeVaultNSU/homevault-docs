@@ -9,7 +9,7 @@ servers:
 
 tags:
   - name: Files
-  description: Interaction with the file system
+    description: Interaction with the file system
 
 paths:
   /list:
