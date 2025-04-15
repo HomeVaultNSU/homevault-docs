@@ -96,6 +96,19 @@ components:
           default: "/"
       required:
         - file
+    
+    UploadResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "File uploaded successfully"
+        path:
+          type: string
+          example: "/uploads/file.txt"
+      required:
+        - message
+        - path
 
     FileItem:
       type: object
