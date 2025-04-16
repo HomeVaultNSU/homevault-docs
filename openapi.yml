@@ -176,6 +176,18 @@ components:
             $ref: "#/components/schemas/FileItem"
         subdirectories:
           type: array
+          items:
+            type: object
+            properties:
+              path: 
+                type: string
+                example: "/docs/dir2"
+              items: 
+                type: array
+                items: { $ref: "#/components/schemas/FileItem" }
+              subdirectories:
+                type: array
+                items: {}
 
     ErrorResponse:
       type: object
