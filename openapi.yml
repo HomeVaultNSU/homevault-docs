@@ -177,17 +177,8 @@ components:
         subdirectories:
           type: array
           items:
-            type: object
-            properties:
-              path: 
-                type: string
-                example: "/docs/dir2"
-              items: 
-                type: array
-                items: { $ref: "#/components/schemas/FileItem" }
-              subdirectories:
-                type: array
-                items: {}
+            $ref: "#/components/schemas/DirectoryListing"
+          example: []
 
     ErrorResponse:
       type: object
