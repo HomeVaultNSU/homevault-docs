@@ -205,5 +205,5 @@ components:
           type: string
         timestamp:
           type: string
-          example: 2025-01-25 17:45:30
+          example: 2025‑01‑25 17:45:30
       required: [error, timestamp]
