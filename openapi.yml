@@ -5,7 +5,7 @@ info:
 
 servers:
   - url: http://localhost:8080
-    description: Development server
+    description: File server
   - url: http://localhost:8090
     description: Auth server
 
