@@ -9,7 +9,6 @@ servers:
   - url: http://localhost:8090
     description: Auth server
 
-# Добавляем секцию security
 security:
   - bearerAuth: []
 
@@ -26,17 +25,16 @@ paths:
         - Files
       summary: Get list of files and directories
       description: Returns the contents of the specified directory with the ability to filter by nesting depth.
-      # Указываем, что этот эндпоинт требует аутентификации
       security:
         - bearerAuth: []
       parameters:
         - name: path
           in: query
-          description: Path to directory (default root "/")
+          description: Path to directory (default root "")
           required: false
           schema:
             type: string
-            default: "/"
+            default: ""
         - name: depth
           in: query
           description: Nesting depth (0 - only current directory, 1 - including subdirectories, etc.)
@@ -45,7 +43,6 @@ paths:
             type: integer
             default: 0
             minimum: 0
-            maximum: 5
       responses:
         '200':
           description: Success
@@ -78,7 +75,6 @@ paths:
         - Files
       summary: Upload a file
       description: Uploads a file to the specified directory
-      # Указываем, что этот эндпоинт требует аутентификации
       security:
         - bearerAuth: []
       requestBody:
@@ -122,7 +118,6 @@ paths:
         - Files
       summary: Download a file
       description: Downloads a file from the server
-      # Указываем, что этот эндпоинт требует аутентификации
       security:
         - bearerAuth: []
       parameters:
@@ -165,7 +160,6 @@ paths:
       tags: [Authorization]
       summary: Create user
       description: Creates a new user account
-      # Этот эндпоинт не требует аутентификации
       security: []
       requestBody:
         required: true
@@ -201,7 +195,6 @@ paths:
       description: |
         - With username/password: Returns JWT token (Login)
         - With existing token: Returns decoded token information
-      # Этот эндпоинт не требует аутентификации
       security: []
       requestBody:
         required: true
