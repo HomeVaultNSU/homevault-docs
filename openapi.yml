@@ -12,6 +12,8 @@ servers:
 tags:
   - name: Files
     description: Interaction with the file system
+  - name: Authorization
+    description: Authorization, token retrieval
 
 paths:
   /list:
@@ -27,7 +29,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ""
+            default: "/"
         - name: depth
           in: query
           description: Nesting depth (0 - only current directory, 1 - including subdirectories, etc.)
@@ -69,27 +71,21 @@ paths:
         - Files
       summary: Upload a file
       description: Uploads a file to the specified directory
-      parameters:
-        - name: file
-          in: query
-          description: Actual file
-          required: true
-          schema:
-            type: MultipartFile
-            default: ""
-        - name: path
-          in: query
-          description: Normalized path (where to store file)
-          required: true
-          schema:
-            type: string
-            default: /
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/UploadRequest"
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+                path:
+                  type: string
+                  description: Target directory path (default root "/")
+                  default: "/"
       responses:
         '201':
           description: File uploaded successfully
@@ -151,28 +147,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-/auth:
-    get:
-      tags:
-        - Authorization
-      summary: Register in DB, get a token.
-      description: Retrieve token to be able issue commands to server.
+  /auth:
+    post:
+      tags: [Authorization]
+      summary: Create user
+      description: Creates a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationRequest"
       responses:
         '201':
-          description: File content
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-        '404':
-          description: File not found
+          description: User created successfully
+        '400':
+          description: Bad request
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-        '400':
-          description: Bad request parameters
+        '409':
+          description: Username already exists
           content:
             application/json:
               schema:
@@ -184,31 +180,110 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+    put:
+      tags: [Authorization]
+      summary: Get or decode token
+      description: |
+        - With username/password: Returns JWT token (Login)
+        - With existing token: Returns decoded token information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/LoginRequest"
+                - $ref: "#/components/schemas/TokenRequest"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/TokenResponse"
+                  - $ref: "#/components/schemas/DecodedTokenResponse"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
   schemas:
-
-    UploadRequest:
+    LoginRequest:
       type: object
       properties:
-        file:
+        username:
           type: string
-          format: binary
-          description: The file to upload
-        path:
+          example: "john_doe"
+        password:
           type: string
-          description: Target directory path (default root "/")
-          default: "/"
+          example: "securepassword123"
       required:
-        - file
-    
+        - username
+        - password
+
+    RegistrationRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "new_user"
+        password:
+          type: string
+          example: "securepassword123"
+      required:
+        - username
+        - password
+
+    TokenRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      required:
+        - token
+
+    TokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      required:
+        - token
+
+    DecodedTokenResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 123
+        role:
+          type: string
+          example: "USER"
+      required:
+        - userId
+        - role
+
     UploadResponse:
       type: object
       properties:
         path:
           type: string
           example: "/my_folder/file.txt"
-      required: [message, path]
+      required:
+        - path
 
     FileItem:
       type: object
@@ -222,15 +297,16 @@ components:
           example: "F"
         size:
           type: integer
-          description: Size in bytes (Files only)
           example: 1024
           nullable: true
-        modified_at:
+        lastModifiedAt:
           type: string
           format: date-time
-          description: Last modified date
           example: "2024-05-20T12:00:00Z"
-      required: [name, type, modified_at]
+      required:
+        - name
+        - type
+        - lastModifiedAt
 
     DirectoryListing:
       type: object
@@ -246,14 +322,20 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DirectoryListing"
-          example: []
+      required:
+        - path
+        - items
 
     ErrorResponse:
       type: object
       properties:
         error:
           type: string
+          example: "File not found"
         timestamp:
           type: string
-          example: 2025â€‘01â€‘25 17:45:30
-      required: [error, timestamp]
+          format: date-time
+          example: "2025-01-25T17:45:30Z"
+      required:
+        - error
+        - timestamp
