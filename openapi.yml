@@ -6,6 +6,8 @@ info:
 servers:
   - url: http://localhost:8080
     description: Development server
+  - url: http://localhost:8090
+    description: Auth server
 
 tags:
   - name: Files
@@ -25,14 +27,14 @@ paths:
           required: false
           schema:
             type: string
-            default: "/"
+            default: ""
         - name: depth
           in: query
           description: Nesting depth (0 - only current directory, 1 - including subdirectories, etc.)
           required: false
           schema:
             type: integer
-            default: 1
+            default: 0
             minimum: 0
             maximum: 5
       responses:
@@ -67,6 +69,21 @@ paths:
         - Files
       summary: Upload a file
       description: Uploads a file to the specified directory
+      parameters:
+        - name: file
+          in: query
+          description: Actual file
+          required: true
+          schema:
+            type: MultipartFile
+            default: ""
+        - name: path
+          in: query
+          description: Normalized path (where to store file)
+          required: true
+          schema:
+            type: string
+            default: /
       requestBody:
         required: true
         content:
@@ -109,6 +126,39 @@ paths:
             example: "/docs/report.pdf"
       responses:
         '200':
+          description: File content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '400':
+          description: Bad request parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+/auth:
+    get:
+      tags:
+        - Authorization
+      summary: Register in DB, get a token.
+      description: Retrieve token to be able issue commands to server.
+      responses:
+        '201':
           description: File content
           content:
             application/octet-stream:
@@ -205,5 +255,5 @@ components:
           type: string
         timestamp:
           type: string
-          example: 2025‑01‑25 17:45:30
+          example: 2025â€‘01â€‘25 17:45:30
       required: [error, timestamp]
