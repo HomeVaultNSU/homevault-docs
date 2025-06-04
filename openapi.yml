@@ -9,6 +9,10 @@ servers:
   - url: http://localhost:8090
     description: Auth server
 
+# Добавляем секцию security
+security:
+  - bearerAuth: []
+
 tags:
   - name: Files
     description: Interaction with the file system
@@ -22,6 +26,9 @@ paths:
         - Files
       summary: Get list of files and directories
       description: Returns the contents of the specified directory with the ability to filter by nesting depth.
+      # Указываем, что этот эндпоинт требует аутентификации
+      security:
+        - bearerAuth: []
       parameters:
         - name: path
           in: query
@@ -71,6 +78,9 @@ paths:
         - Files
       summary: Upload a file
       description: Uploads a file to the specified directory
+      # Указываем, что этот эндпоинт требует аутентификации
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -112,6 +122,9 @@ paths:
         - Files
       summary: Download a file
       description: Downloads a file from the server
+      # Указываем, что этот эндпоинт требует аутентификации
+      security:
+        - bearerAuth: []
       parameters:
         - name: path
           in: query
@@ -152,6 +165,8 @@ paths:
       tags: [Authorization]
       summary: Create user
       description: Creates a new user account
+      # Этот эндпоинт не требует аутентификации
+      security: []
       requestBody:
         required: true
         content:
@@ -186,6 +201,8 @@ paths:
       description: |
         - With username/password: Returns JWT token (Login)
         - With existing token: Returns decoded token information
+      # Этот эндпоинт не требует аутентификации
+      security: []
       requestBody:
         required: true
         content:
@@ -339,3 +356,10 @@ components:
       required:
         - error
         - timestamp
+    
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Enter your JWT token in the format 'Bearer <token>'"
